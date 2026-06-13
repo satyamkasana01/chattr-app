@@ -2,10 +2,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDb } from './confing/db.js';
+import { createClient } from 'redis';
+import { router } from './routes/user.js';
 
 
 dotenv.config();
+
 connectDb();
+
+export const redisClient = createClient({
+     url: process.env.REDIS_URL as string,
+})
+
+redisClient.connect().then(() =>console.log("connected to redis")).catch((err) => console.log("error connecting to redis", err))
 
 const app = express();
 
