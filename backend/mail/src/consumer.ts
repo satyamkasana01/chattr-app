@@ -1,7 +1,6 @@
 import amqp from 'amqplib'
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
-import { assign } from 'nodemailer/lib/shared/index.js'
 dotenv.config()
 
 export const StartSendOtpConsumer = async() => {
@@ -14,15 +13,14 @@ export const StartSendOtpConsumer = async() => {
             password: process.env.Rabbitmq_Password!,
         })
 
-        const channel = await connection.createChannel()
+        const channel = await connection.createChannel() //  Creates a Channel (a lightweight virtual pipe) inside the Connection.
 
         const queueName = "send-otp"
-
         await channel.assertQueue(queueName, { durable: true})
 
         console.log("✅ Mail service consumer started, listenting for otp emails")
 
-        channel.consume(queueName, async(msg)=>{
+        channel.consume(queueName, async(msg)=>{  // consume? It tells RabbitMQ: "Whenever a new message arrives in 'send-otp', run this callback function."
             if(msg){
                 try {
                     const {to, subject, body} = JSON.parse(msg.content.toString())

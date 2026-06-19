@@ -1,5 +1,4 @@
 import amqplib from 'amqplib'
-import { json } from 'node:stream/consumers';
 
 let channel: amqplib.Channel;
 

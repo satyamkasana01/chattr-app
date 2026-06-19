@@ -1,3 +1,5 @@
+//This microservice handles user registrations, rate limits requests, saves OTPs in Redis, and passes the email payload to RabbitMQ.
+
 
 import express from 'express';
 import dotenv from 'dotenv';
@@ -20,9 +22,7 @@ export const redisClient = createClient({
 redisClient.connect().then(() =>console.log("connected to redis")).catch((err) => console.log("error connecting to redis", err))
 
 const app = express();
-
 app.use(express.json())
-
 app.use("/api/v1", router)
 
 const port = process.env.PORT;
