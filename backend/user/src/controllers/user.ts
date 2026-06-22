@@ -2,6 +2,7 @@ import { generateToken } from "../confing/generateToken.js"
 import { publishToQueue } from "../confing/rabbitmq.js"
 import TryCatch from "../confing/TryCatch.js"
 import { redisClient } from "../index.js"
+import type { AuthenticatedRequest } from "../middleware/isAuth.js"
 import { User } from "../model/user.js"
 
 export const loginUser = TryCatch(async(req, res)=>{
@@ -74,4 +75,11 @@ export const verifyUser = TryCatch(async(req, res)=> {
         user,
         token
     })
+})
+
+
+export const myProfile = TryCatch(async(req: AuthenticatedRequest, res)=> {
+    const user = req.user
+
+    res.json(user)
 })
