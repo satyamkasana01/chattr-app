@@ -86,3 +86,102 @@ export const getAllChats = TryCatch(async(req:AuthenticatedRequest, res)=>{
         chats: chatWithUserData
     })
 })
+
+export const sendMessage = TryCatch(async(req:AuthenticatedRequest, res)=>{
+    const senderId = req.user?._id
+    const {chatId, text} = req.body
+    const imageFile = req.file;
+
+    if(!senderId){
+        res.status(401).json({
+            message: "unauthorized"
+        })
+        return
+    }
+    if(!chatId){
+        res.status(400).json({
+            message: "ChatId Required"
+        })
+        return
+    }
+
+    if(!text && !imageFile){
+       res.status(400).json({
+            message: "Either text or image is required"
+        })
+        return 
+    }
+
+    const chat = await Chat.findById(chatId)
+    if(!chat){
+        res.status(4004).json({
+            message: "chat not found"
+        })
+        return;
+    }
+
+    const isUserInChat = chat.users.some(
+        (userId) => userId.toString() === senderId.toString()
+    )
+    if(!isUserInChat){
+        res.status(403).json({
+            messaeg: "You are not participant of this chat"
+        })
+        return 
+    }
+
+    const otherUserId = chat.users.find(
+        (userId) => userId.toString() !== senderId.toString()
+    )
+    if(!otherUserId){
+        res.status(401).json({
+            message: "No other user"
+        })
+        return
+    }
+
+    //socket setup
+
+    const messageData: any = {
+        chatId: chatId,
+        sender: senderId,
+        seen: false,
+        seenAt: undefined
+    }
+
+    if(imageFile){
+        messageData.image = {
+            url: imageFile?.path,
+            publicId: imageFile?.filename
+        }
+        messageData.messageType = "image"
+        messageData.text = text || ""
+    }else{
+        messageData.text = text;
+        messageData.messageType = "text"
+    }
+
+    const message = new Message(messageData);
+    const saveMessage = await message.save()
+    const latestMessageText = imageFile ? "📷 image" : text
+
+    await Chat.findByIdAndUpdate(chatId, {
+        latestMessage: {
+            text: latestMessageText,
+            sender: senderId
+        },
+        updatedAt: new Date()
+    }, { new: true})
+
+    res.status(201).json({
+        message: "Message sent",
+        data: saveMessage
+    })
+
+    //emit to socket
+    res.status(201).json({
+        message: saveMessage,
+        sender: senderId
+    })
+
+})
