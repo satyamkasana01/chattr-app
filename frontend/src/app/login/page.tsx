@@ -1,6 +1,6 @@
 "use client"
 import axios from 'axios'
-import { ArrowRight, Mail } from 'lucide-react'
+import { ArrowRight, Loader2, Mail } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
@@ -17,7 +17,13 @@ const LoginPage = () => {
             alert(data.message)
             router.push(`/verify?email=${email}`) // Redirect to the verification page with the email as a query parameter
         } catch (error: any) {
-            alert(error.response.data.error)
+          const message =
+              error?.response?.data?.error ||
+              error?.response?.data?.message ||
+              error.message ||
+            "Something went wrong"
+
+          alert(message)
         } finally {
             setLoading(false)
         }
@@ -50,11 +56,22 @@ const LoginPage = () => {
                 </div>
                 <button
                 type='submit'
-                className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disable:opacity-50 disabled:cursor-not-allowed ' >
-                <div className='flex items-center justify-center gap-2'>
-                    <span>Send Verification Code</span>
-                    <ArrowRight className='w-5 h-5' />
-                </div>
+                className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disable:opacity-50 disabled:cursor-not-allowed '
+                disabled={loading} // Disable the button when loading
+                >
+                  {loading? (
+                    <div className='flex items-center justify-center gap-2'>
+                      <Loader2 className='w-5 h-5' />
+                      Sending OTP to your email...
+                    </div>
+                  ) : (
+                    <div className='flex items-center justify-center gap-2'>
+                      <span>Send Verification Code</span>
+                      <ArrowRight  className='w-5 h-5'/>
+                    </div>
+                  )
+                }
+                
                 </button>
             </form>
         </div>

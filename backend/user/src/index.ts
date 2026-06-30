@@ -22,10 +22,13 @@ export const redisClient = createClient({
 
 redisClient.connect().then(() =>console.log("connected to redis")).catch((err) => console.log("error connecting to redis", err))
 
+
 const app = express();
 app.use(express.json())
+app.use(cors())
 app.use("/api/v1", router)
-app.use(cors)
+
+//app.use(cors())
 
 const port = process.env.PORT;
 
