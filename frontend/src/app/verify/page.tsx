@@ -5,14 +5,14 @@ import React, { useEffect, useRef, useState } from 'react'
 
 const VerifyPage = () => {
   const [loading, setLoading] = useState(false)
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]) // State to hold the 6-digit OTP input values
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]) 
   const [error, setError] = useState<string>("")
   const [resendLoading, setResendLoading] = useState<boolean>(false)
   const [timer, setTimer] = useState<number>(60) 
   const inputRefs = useRef<Array<HTMLInputElement | null>>([])
   const router = useRouter()
 
-  const searchParams = useSearchParams() // It gives you access to the query string (search parameters) of the current URL
+  const searchParams = useSearchParams() 
   const email: string = searchParams.get('email') || "" // Extract the email parameter
 
   useEffect(() => {
@@ -23,6 +23,35 @@ const VerifyPage = () => {
       return () => clearInterval(interval)
     }
   }, [timer])
+
+  const handleInputChange = (index: number, value: string): void => {
+    if(value.length> 1) return;
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
+    setError("")
+
+    if(value && index < 5){
+      inputRefs.current[index+1]?.focus()
+    }
+  }
+
+  const handleKeyDown = (index:number, e: React.KeyboardEvent<HTMLInputElement>): void=> {
+    if(e.key === "Backspace" && !otp[index] && index > 0){
+      inputRefs.current[index-1]?.focus()
+    }
+  }
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>):void => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text')
+    const digits = pastedData.replace(/\D/g, '').slice(0, 6)
+    if(digits.length === 6){
+      const newOtp = digits.split('')
+      setOtp(newOtp)
+      inputRefs.current[5]?.focus()
+    }
+  }
 
   const handleSubmit = async() => {}
   return <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
