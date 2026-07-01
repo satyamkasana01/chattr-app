@@ -67,19 +67,31 @@ const VerifyPage = () => {
             </div>
             <form onSubmit={handleSubmit} className='space-y-6'>
                 <div>
-                    <label htmlFor="email" className='block text-sm font-medium text-gray-300 mb-2'>
-                        Email Adress
+                    <label className='block text-sm font-medium text-gray-300 mb-4 text-center'>
+                        Enter your 6 digit otp here
                     </label>
-                    <input 
-                    type="email" 
-                    id='email' 
-                    className='w-full px-4 py-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400' 
-                    placeholder='Enter Your email address'
-                    //value={email} // Bind the input value to the email state
-                    // onChange={(e) => setEmail(e.target.value)} // Update the email state on input change
-                    required 
-                    />
+                   <div className='flex justify-center in-checked: space-x-3'>
+                    {
+                      otp.map((digit, index)=>(
+                        <input key={index} ref={(el:HTMLInputElement | null)=>{
+                          inputRefs.current[index] = el;
+                        }}
+                        type='text'
+                        maxLength={1}
+                        value={digit}
+                        onChange={e=> handleInputChange(index, e.target.value)}
+                        onKeyDown={e=> handleKeyDown(index, e)}
+                        onPaste={index === 0 ? handlePaste : undefined}
+                        className='w-12 h-12 text-center text-xl font-bold border-2 border-gra-600 rounded-lg bg-gray-700 text-white'
+                      />
+                    ))}
+                   </div>
                 </div>
+                {
+                  error && <div className='text-red-900 border border-red-900 rounded-lg p-3'>
+                    <p className='text-red-300 text-sm text-center'>{error}</p>
+                  </div>
+                }
                 <button
                 type='submit'
                 className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disable:opacity-50 disabled:cursor-not-allowed '
@@ -100,6 +112,22 @@ const VerifyPage = () => {
                 
                 </button>
             </form>
+            <div className='mt-6 text-center'>
+              <p className='text-gray-300 text-sm mb-4'>
+                Didn't receive the code?
+              </p>
+              { 
+                timer > 0 ? (
+                <p className='text-gray-400 text-sm'>Resend code in {timer} seconds</p> 
+              ) : ( 
+                <button 
+                 className='text-blue-400 hover:text-blue-300 font-medium text-sm disabled:opacity-50'
+                 disabled={resendLoading}
+                >
+                  {resendLoading ? "Sending..." : "Resend Code"}
+                </button>
+              )}
+            </div>
         </div>
       </div>
     </div>
