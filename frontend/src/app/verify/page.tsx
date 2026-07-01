@@ -1,7 +1,9 @@
 "use client"
-import { ArrowRight, Loader2, Lock } from 'lucide-react'
+import axios from 'axios'
+import { ArrowRight, ChevronLeft, Loader2, Lock } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
+import Cookies from 'js-cookie'
 
 const VerifyPage = () => {
   const [loading, setLoading] = useState(false)
@@ -53,11 +55,55 @@ const VerifyPage = () => {
     }
   }
 
-  const handleSubmit = async() => {}
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const otpString = otp.join('')
+    if(otpString.length < 6) {
+      setError("Please enter the complete 6-digit code.")
+      return
+    }
+
+    setError("")
+    setLoading(true)
+
+    try {
+      const {data} = await axios.post(`http://localhost:5000/api/v1/verify`, {email, otp: otpString})
+      alert(data.message)
+      Cookies.set("token", data.token, {
+        expires: 7, // Set the cookie to expire in 7 days
+        secure: false,
+        path: "/"
+      })
+      setOtp(["", "", "", "", "", ""])
+      inputRefs.current[0]?.focus()
+    } catch (error:any) {
+      setError(error.response.data.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    setResendLoading(true)
+    setError("")
+    try {
+      const {data} = await axios.post(`http://localhost:5000/api/v1/login`, {email})
+      alert(data.message)
+      setTimer(60) // Reset the timer to 60 seconds
+    } catch (error:any) {
+      setError(error.response.data.message)
+    } finally {
+      setResendLoading(false)
+    }
+  }
+    
   return <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
       <div className='max-w-md w-full'>
         <div className='bg-gray-800 border border-gray-700 rounded-lg p-8'>
-            <div className='text-center mb-8'>
+            <div className='text-center mb-8 relative'>
+              <button className='absolute top-0 left-0 p-2 text-gray-300 hover:text-white' onClick={()=> router.push("/login")}>
+                <ChevronLeft className='w-6 h-6' />
+              </button>
               <div className='mx-auto w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-6'>
                 <Lock size={40} className='text-white' />
               </div>
@@ -123,6 +169,7 @@ const VerifyPage = () => {
                 <button 
                  className='text-blue-400 hover:text-blue-300 font-medium text-sm disabled:opacity-50'
                  disabled={resendLoading}
+                 onClick={handleResendOtp}
                 >
                   {resendLoading ? "Sending..." : "Resend Code"}
                 </button>
