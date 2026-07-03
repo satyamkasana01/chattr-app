@@ -1,4 +1,5 @@
 "use client"
+import { user_service } from '@/src/context/AppContext'
 import axios from 'axios'
 import { ArrowRight, Loader2, Mail } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -13,7 +14,7 @@ const LoginPage = () => {
         e.preventDefault()
         setLoading(true)
         try {
-            const {data} = await axios.post(`http://localhost:5000/api/v1/login`, {email})
+            const {data} = await axios.post(`${user_service}/api/v1/login`, {email})
             alert(data.message)
             router.push(`/verify?email=${email}`) // Redirect to the verification page with the email as a query parameter
         } catch (error: any) {
