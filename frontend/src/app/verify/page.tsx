@@ -1,15 +1,15 @@
-"use client"
 
+
+import Loading from "@/src/components/Loading"
 import VerifyOtp from "@/src/components/VerifyOtp"
+import { Suspense } from "react"
 
 const VerifyPage = () => {
- 
-  
     
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       <VerifyOtp />
-    </div>
+    </Suspense>
   )
 }
 

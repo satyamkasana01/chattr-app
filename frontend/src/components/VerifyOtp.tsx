@@ -1,13 +1,14 @@
 "use client"
 import axios from 'axios'
 import { ArrowRight, ChevronLeft, Loader2, Lock } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import Cookies from 'js-cookie'
-import { user_service } from '@/src/context/AppContext'
-import VerifyPage from '../app/verify/page'
+import { useAppData, user_service } from '@/src/context/AppContext'
+import Loading from './Loading'
 
 const VerifyOtp = () => {
+    const {isAuth, setIsAuth, setUser, loading: userLoading } = useAppData()
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]) 
   const [error, setError] = useState<string>("")
@@ -18,6 +19,14 @@ const VerifyOtp = () => {
 
   const searchParams = useSearchParams() 
   const email: string = searchParams.get('email') || "" // Extract the email parameter
+
+
+
+  useEffect(() => {
+    if (isAuth) {
+      router.replace("/chat")
+    }
+  }, [isAuth, router])
 
   useEffect(() => {
     if(timer>0){
@@ -78,6 +87,8 @@ const VerifyOtp = () => {
       })
       setOtp(["", "", "", "", "", ""])
       inputRefs.current[0]?.focus()
+      setUser(data.user)
+      setIsAuth(true)
     } catch (error:any) {
       setError(error.response.data.message)
     } finally {
@@ -98,7 +109,10 @@ const VerifyOtp = () => {
       setResendLoading(false)
     }
   }
+
+    if(userLoading) return <Loading/>
     
+  //if(isAuth) redirect("/chat")
   return <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
       <div className='max-w-md w-full'>
         <div className='bg-gray-800 border border-gray-700 rounded-lg p-8'>
