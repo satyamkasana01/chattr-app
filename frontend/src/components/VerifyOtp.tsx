@@ -9,7 +9,7 @@ import Loading from './Loading'
 import toast from 'react-hot-toast'
 
 const VerifyOtp = () => {
-    const {isAuth, setIsAuth, setUser, loading: userLoading } = useAppData()
+    const {isAuth, setIsAuth, setUser, loading: userLoading, fetchChats, fetchUsers  } = useAppData()
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]) 
   const [error, setError] = useState<string>("")
@@ -90,6 +90,8 @@ const VerifyOtp = () => {
       inputRefs.current[0]?.focus()
       setUser(data.user)
       setIsAuth(true)
+      fetchChats() // this will fetch the chats after successful verification // mean solve the bug when we have to refresh the page to see the chats after login
+      fetchUsers() // also for this
     } catch (error:any) {
       setError(error.response.data.message)
     } finally {

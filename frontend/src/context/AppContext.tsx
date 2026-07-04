@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast"; 
@@ -39,6 +39,12 @@ interface AppContextType {
     isAuth: boolean;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
     setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+    logoutUser: () => Promise<void>;
+    fetchUsers: () => Promise<void>;
+    fetchChats: () => Promise<void>;
+    chats: Chats[] | null;
+    users: User[] | null;
+    setChats: React.Dispatch<React.SetStateAction<Chats[] | null>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -76,7 +82,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({children}) => {
         toast.success("User Logged Out")
     }
 
-    const [chats, setChats] = useState<Chat[] | null>(null);
+    const [chats, setChats] = useState<Chats[] | null>(null);
     async function fetchChats(){
         const token = Cookies.get("token");
         try {
@@ -91,13 +97,30 @@ export const AppProvider: React.FC<AppProviderProps> = ({children}) => {
         }
     }
 
+    const [users, setUsers] = useState<User[] | null>(null);
+
+    async function fetchUsers(){
+        const token = Cookies.get("token");
+        try {
+            const {data} = await axios.get(`${user_service}/api/v1/user/all`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            setUsers(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(()=> {
         fetchUser()
         fetchChats()
+        fetchUsers()
     }, [])
 
     return (
-        <AppContext.Provider value={{ user, loading, isAuth, setUser, setIsAuth }}>
+        <AppContext.Provider value={{ user, loading, isAuth, setUser, setIsAuth, logoutUser, fetchUsers, fetchChats, chats, users, setChats }}>
             {children}
             <Toaster/>
         </AppContext.Provider>
