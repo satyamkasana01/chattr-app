@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Cookies from 'js-cookie'
 import { useAppData, user_service } from '@/src/context/AppContext'
 import Loading from './Loading'
+import toast from 'react-hot-toast'
 
 const VerifyOtp = () => {
     const {isAuth, setIsAuth, setUser, loading: userLoading } = useAppData()
@@ -79,7 +80,7 @@ const VerifyOtp = () => {
 
     try {
       const {data} = await axios.post(`${user_service}/api/v1/verify`, {email, otp: otpString})
-      alert(data.message)
+      toast.success(data.message)
       Cookies.set("token", data.token, {
         expires: 7, // Set the cookie to expire in 7 days
         secure: false,
@@ -101,7 +102,7 @@ const VerifyOtp = () => {
     setError("")
     try {
       const {data} = await axios.post(`${user_service}/api/v1/login`, {email})
-      alert(data.message)
+      toast.success(data.message)
       setTimer(60) // Reset the timer to 60 seconds
     } catch (error:any) {
       setError(error.response.data.message)

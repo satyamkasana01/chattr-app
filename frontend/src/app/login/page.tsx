@@ -5,6 +5,7 @@ import axios from 'axios'
 import { ArrowRight, Loader2, Mail } from 'lucide-react'
 import { redirect, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>('')
@@ -18,7 +19,7 @@ const LoginPage = () => {
         setLoading(true)
         try {
             const {data} = await axios.post(`${user_service}/api/v1/login`, {email})
-            alert(data.message)
+            toast.success(data.message)
             router.push(`/verify?email=${email}`) // Redirect to the verification page with the email as a query parameter
         } catch (error: any) {
           const message =
@@ -27,7 +28,7 @@ const LoginPage = () => {
               error.message ||
             "Something went wrong"
 
-          alert(message)
+          toast.error(message)
         } finally {
             setLoading(false)
         }
