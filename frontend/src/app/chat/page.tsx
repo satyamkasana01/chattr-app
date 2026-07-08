@@ -16,7 +16,7 @@ export interface Message {
   chatId: string;
   sender: string;
   text?: string;
-  image?:{
+  image?: {
     url: string;
     publicId: string;
   };
@@ -27,9 +27,9 @@ export interface Message {
 }
 
 const page = () => {
-  const {loading, isAuth, logoutUser, chats, user:loggedInUser, users, fetchChats, setChats}= useAppData()   // loggedInUser = me / current logged-in account
+  const { loading, isAuth, logoutUser, chats, user: loggedInUser, users, fetchChats, setChats } = useAppData()   // loggedInUser = me / current logged-in account
 
-  const[selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const [message, setMessage] = useState("") // for the message input field
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
   const [messages, setMessages] = useState<Message[] | null>(null) // for the messages of the selected chat
@@ -40,23 +40,23 @@ const page = () => {
 
 
   const router = useRouter()
- 
-  useEffect(()=> {
-    if(!isAuth && !loading){
+
+  useEffect(() => {
+    if (!isAuth && !loading) {
       router.push("/login")
     }
-  },[isAuth, router, loading])
+  }, [isAuth, router, loading])
 
-  const handleLogout = () =>  logoutUser()
+  const handleLogout = () => logoutUser()
 
-  async function fetchChat(){
+  async function fetchChat() {
     const token = Cookies.get("token")
     try {
-      const {data} = await axios.get(`${chat_service}/api/v1/message/${selectedUser}`,{
+      const { data } = await axios.get(`${chat_service}/api/v1/message/${selectedUser}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      
+
       })
       setMessages(data.messages)
       setUser(data.user)
@@ -64,15 +64,15 @@ const page = () => {
     } catch (error) {
       console.log(error)
       toast.error("Failed to fetch chats")
-    
-      
+
+
     }
   }
 
-  async function createChat(u:User){
+  async function createChat(u: User) {
     try {
       const token = Cookies.get("token")
-      const {data} = await axios.post(`${chat_service}/api/v1/chat/new`, {userId: loggedInUser?._id, otherUserId: u._id}, {
+      const { data } = await axios.post(`${chat_service}/api/v1/chat/new`, { userId: loggedInUser?._id, otherUserId: u._id }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -85,13 +85,13 @@ const page = () => {
     }
   }
 
-  useEffect(()=> {
-    if(selectedUser){
+  useEffect(() => {
+    if (selectedUser) {
       fetchChat()
     }
-  },[selectedUser])
+  }, [selectedUser])
 
-  if(loading) return <Loading />;
+  if (loading) return <Loading />;
   return (
     <div className='min-h-screen flex bg-gray-900 text-white relative overflow-hidden'>
       <ChatSidebar
@@ -108,9 +108,9 @@ const page = () => {
         createChat={createChat}
       />
       <div className='flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5 border border-white/10'>
-      <ChatHeader user={user} setSidebarOpen={setSidebarOpen} isTyping={isTyping} />
+        <ChatHeader user={user} setSidebarOpen={setSidebarOpen} isTyping={isTyping} />
 
-      <ChatMessages selectedUser={selectedUser} messages={messages} loggedInUser={loggedInUser} />
+        <ChatMessages selectedUser={selectedUser} messages={messages} loggedInUser={loggedInUser} />
       </div>
     </div>
   )

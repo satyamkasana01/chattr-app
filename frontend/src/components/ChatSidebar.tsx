@@ -15,7 +15,7 @@ interface ChatSidebarProps {
   selectedUser: string | null;
   setSelectedUser: (userId: string | null) => void;
   handleLogout: () => void;
-  createChat: (user:User) => void
+  createChat: (user: User) => void
 }
 
 const ChatSidebar = ({ sidebarOpen, setSidebarOpen, showAllUser, setShowAllUser, users, loggedInUser, chats, selectedUser, setSelectedUser, handleLogout, createChat }: ChatSidebarProps) => {
@@ -66,7 +66,7 @@ const ChatSidebar = ({ sidebarOpen, setSidebarOpen, showAllUser, setShowAllUser,
                 {
                   users?.filter((u) => u._id !== loggedInUser?._id && u.name.toLowerCase().includes(searchQuery.toLocaleLowerCase())).map((u) => (
                     <button key={u._id} className='w-full text-left p-4 rounded-lg border border-gray-700 hover:border-gray-600 hover:bg-gray-800 transition-colors'
-                    onClick={()=>createChat(u)}
+                      onClick={() => createChat(u)}
                     >
                       <div className='flex items-center gap-3'>
                         <div className='relative'>
@@ -140,7 +140,7 @@ const ChatSidebar = ({ sidebarOpen, setSidebarOpen, showAllUser, setShowAllUser,
                     </button>
                   })
                 }
-              </div> : 
+              </div> :
               <div className='flex flex-col items-center justify-center h-full text-center'>
                 <div className='p-4 bg-gray-800 rounded-full mb-4'>
                   <MessageCircle className='w-8 h-8 text-gray-400' />
@@ -152,17 +152,17 @@ const ChatSidebar = ({ sidebarOpen, setSidebarOpen, showAllUser, setShowAllUser,
       </div>
       {/* Footer */}
       <div className='p-4 border-t border-gray-700 space-y-2'>
-        <Link href={'/profile'} className='flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors' >  
-        <div className='p-1.5 bg-gray-700 rounded-lg'>
-          <UserCircle className='w-4 h-4 text-gray-300'/>
-         
-        </div>
-        <span className='font-medium text-gray-300'> Profile</span>
+        <Link href={'/profile'} className='flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors' >
+          <div className='p-1.5 bg-gray-700 rounded-lg'>
+            <UserCircle className='w-4 h-4 text-gray-300' />
+
+          </div>
+          <span className='font-medium text-gray-300'> Profile</span>
         </Link>
         <button onClick={handleLogout} className='w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors text-red-500 hover:text-white'>
           <div className='p-1.5 bg-red-600 rounded-lg'>
             <LogOut className='w-4 h-4 text-gray-300' />
-          </div> 
+          </div>
           <span className='font-medium'>Logout</span>
         </button>
       </div>
