@@ -8,7 +8,7 @@ export interface Ichat extends Document{
     }
 
     createdAt: Date;
-    updatedAr: Date;
+    updatedAt: Date;
 }
 
 const schema: Schema<Ichat> = new Schema({

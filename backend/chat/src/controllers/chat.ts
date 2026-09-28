@@ -81,7 +81,6 @@ export const getAllChats = TryCatch(async(req:AuthenticatedRequest, res)=>{
             }
         })
     )
-
     res.json({
         chats: chatWithUserData
     })
@@ -114,7 +113,7 @@ export const sendMessage = TryCatch(async(req:AuthenticatedRequest, res)=>{
 
     const chat = await Chat.findById(chatId)
     if(!chat){
-        res.status(4004).json({
+        res.status(404).json({
             message: "chat not found"
         })
         return;
