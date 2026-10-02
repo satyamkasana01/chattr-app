@@ -42,7 +42,7 @@ const ChatMessages = ({ selectedUser, messages, loggedInUser }: ChatMessagesProp
                                 const isSentByMe = e.sender === loggedInUser?._id
                                 const uniqueKey = `${e._id}-${i}` // Create a unique key using the message ID and index
                                 return (
-                                    <div className={`flex flex-col gap-1 mt-2 ${isSentByMe ? "items end" : "items-start"
+                                    <div className={`flex flex-col gap-1 mt-2 ${isSentByMe ? "items-end" : "items-start"
                                         }`}
                                         key={uniqueKey}>
                                         <div className={`rounded-lg p-3 max-w-sm ${isSentByMe ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
