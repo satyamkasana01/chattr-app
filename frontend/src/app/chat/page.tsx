@@ -12,6 +12,7 @@ import ChatHeader from '@/src/components/ChatHeader'
 import ChatMessages from '@/src/components/ChatMessages'
 import MessageInput from '@/src/components/MessageInput'
 import { ReactJsxRuntime } from 'next/dist/server/route-modules/app-page/vendored/rsc/entrypoints'
+import { SocketData } from '@/src/context/SocketContext'
 
 export interface Message {
   _id: string;
@@ -30,6 +31,9 @@ export interface Message {
 
 const page = () => {
   const { loading, isAuth, logoutUser, chats, user: loggedInUser, users, fetchChats, setChats } = useAppData()   // loggedInUser = me / current logged-in account
+
+  const {onlineUsers} = SocketData()
+  console.log(onlineUsers)
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const [message, setMessage] = useState("") // for the message input field
@@ -160,6 +164,7 @@ const page = () => {
         setSelectedUser={setSelectedUser}
         handleLogout={handleLogout}
         createChat={createChat}
+        onlineUsers={onlineUsers}
       />
       <div className='flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5 border border-white/10'>
         <ChatHeader user={user} setSidebarOpen={setSidebarOpen} isTyping={isTyping} />
