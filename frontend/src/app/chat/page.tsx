@@ -167,7 +167,7 @@ const page = () => {
         onlineUsers={onlineUsers}
       />
       <div className='flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5 border border-white/10'>
-        <ChatHeader user={user} setSidebarOpen={setSidebarOpen} isTyping={isTyping} />
+        <ChatHeader user={user} setSidebarOpen={setSidebarOpen} isTyping={isTyping} onlineUsers={onlineUsers} />
 
         <ChatMessages selectedUser={selectedUser} messages={messages} loggedInUser={loggedInUser} />
         <MessageInput selectedUser={selectedUser} message={message} handleMessageSend={handleMessageSend} setMessage={handleTyping} />
