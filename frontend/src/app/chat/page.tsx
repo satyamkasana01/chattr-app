@@ -13,6 +13,7 @@ import ChatMessages from '@/src/components/ChatMessages'
 import MessageInput from '@/src/components/MessageInput'
 import { ReactJsxRuntime } from 'next/dist/server/route-modules/app-page/vendored/rsc/entrypoints'
 import { SocketData } from '@/src/context/SocketContext'
+import { clear } from 'console'
 
 export interface Message {
   _id: string;
@@ -32,8 +33,7 @@ export interface Message {
 const page = () => {
   const { loading, isAuth, logoutUser, chats, user: loggedInUser, users, fetchChats, setChats } = useAppData()   // loggedInUser = me / current logged-in account
 
-  const {onlineUsers} = SocketData()
-  console.log(onlineUsers)
+  const { onlineUsers, socket } = SocketData()
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const [message, setMessage] = useState("") // for the message input field
@@ -96,6 +96,16 @@ const page = () => {
     if (!message.trim() && !imageFile) return;
 
     // socket work
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+      setTypingTimeout(null)
+    }
+
+    socket?.emit("stopTyping", {
+      chatId: selectedUser,
+      userId: loggedInUser?._id
+    })
+
     const token = Cookies.get("token")
     try {
       const formData = new FormData()
@@ -129,8 +139,8 @@ const page = () => {
 
       setMessage("")
 
-      const displayText = imageFile? "image" : "message"
-    } catch (error: any ) {
+      const displayText = imageFile ? "image" : "message"
+    } catch (error: any) {
       toast.error(error.response.data.message)
 
     }
@@ -138,16 +148,72 @@ const page = () => {
 
   const handleTyping = (value: string) => {
     setMessage(value)
-    if (!selectedUser) return;
+    if (!selectedUser || !socket) return;
 
     // socket setup
+    if (value.trim()) {
+      socket.emit("typing", {
+        chatId: selectedUser,
+        userId: loggedInUser?._id
+      })
+    }
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+      setTypingTimeout(null)
+    }
+
+    const timeout = setTimeout(() => {
+      socket.emit("stopTyping", {
+        chatId: selectedUser,
+        userId: loggedInUser?._id
+      })
+    }, 2000)
+    setTypingTimeout(timeout)
   }
 
   useEffect(() => {
-    if (selectedUser) {
-      fetchChat()
+    socket?.on("userTyping", (data)=>{
+      console.log("recieved user typing", data)
+      if(data.chatId === selectedUser && data.userId !== loggedInUser?._id){
+        setIsTyping(true)
+      }
+    })
+
+    socket?.on("userStopTyping", (data)=>{
+      console.log("recieved user stopped typing", data)
+      if(data.chatId === selectedUser && data.userId !== loggedInUser?._id){
+        setIsTyping(false)
+      }
+    })
+
+    return () => {
+      socket?.off("userTyping")
+      socket?.off("userStopTyping")
     }
-  }, [selectedUser])
+  }, [socket, selectedUser, loggedInUser?._id])
+
+  useEffect(() => {
+    if (selectedUser) {
+      fetchChat();
+      setIsTyping(false)
+
+      socket?.emit("joinChat", selectedUser)
+
+      return () => {
+        socket?.emit("leaveChat", selectedUser)
+        setMessage("")
+      }
+    }
+  }, [selectedUser, socket])
+
+  useEffect(() => {
+    return () => {
+      if(typingTimeout){
+        clearTimeout(typingTimeout)
+      }
+    }
+  }, [typingTimeout])
 
   if (loading) return <Loading />;
   return (
